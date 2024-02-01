@@ -10,6 +10,7 @@ CREATE TABLE department (
     -- 30 representing character count
 );
 
+
 CREATE TABLE role (
     id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     title VARCHAR(30),
