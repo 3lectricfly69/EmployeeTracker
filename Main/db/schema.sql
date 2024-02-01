@@ -9,7 +9,7 @@ CREATE TABLE department (
     VARCHAR(30), 
     -- 30 representing character count
 );
-
+"got command prompt firing off, view department functioning, connection styling with figlet, other view operations WIP."
 
 CREATE TABLE role (
     id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
