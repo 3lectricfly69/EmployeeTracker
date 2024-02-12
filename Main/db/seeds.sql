@@ -1,12 +1,12 @@
 INSERT INTO department (department_name)
 VALUES
-('Engineering'),
+("Engineering"),
 ('Marketing'),
 ('Accounting'),
 ('Human Resources'),
 ('Administration');
 
-INSERT INTO role (title, salary, dep_id)
+INSERT INTO role (title, salary, department_id)
 VALUES
 ('Engineer', 85000.00, 1),
 ('Lead Engineer', 93000.00, 1),
@@ -17,8 +17,8 @@ VALUES
 ('HR Administrator', 60000.00, 4),
 ('CEO', 110000, 5);
 
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES  ('Duncan','Trussell', 8, NULL),
+INSERT INTO employee (first_name, last_name, role_id, supervisor_id)
+VALUES ('Duncan','Trussell', 8, 1),
         ('Laney','Orton', 1, 10),
         ('Amber','Horwits', 3, 4),
         ('Anderson','Greer', 5, 6),
@@ -32,7 +32,7 @@ VALUES  ('Duncan','Trussell', 8, NULL),
         ('Vector','Hakim', 1, 10),
         ('Amir','Mashayekhi', 1, 10),
         ('Marcus','Rivera', 7, 1),
-        ('Esther','Dockery', 7, 1),
+        ('Esther','Dockery', 7, 1);
         
         -- self join, create aliases, e1/e2, 
 

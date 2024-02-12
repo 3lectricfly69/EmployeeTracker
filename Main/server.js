@@ -1,4 +1,5 @@
-const mysql = require ('mysql2');
+const mysql = require ("mysql2");
+const PORT = process.env.PORT || 8000;
 const inquirer = require ('inquirer');
 const table = require ("table");
 const chalk = require ('chalk');
@@ -6,7 +7,8 @@ const fs = require ("fs");
 const connection = require ('connection');
 const figlet = require ('figlet');
 const cTable = require ("console.table");
-// import and require mysql2
+// Get the client // import and require mysql2
+// import mysql from 'mysql2/promise';
 
 // define models, turn on server, and work on routes
 // find * and create
@@ -14,12 +16,7 @@ const cTable = require ("console.table");
 // connect middleware framework
 // var app = connect();
 // app.use(connect.urlencoded({ extended: false }));
-// app.use(connect.json());
-
-// read sql seed query
-const seeds = fs.readFileSync("db/seeds.sql",{
-    encoding: "utf-8",
-})
+// app.use(connect.json()); 
 
 // connect to database
 const db = mysql.createConnection(
@@ -33,7 +30,7 @@ const db = mysql.createConnection(
         multipleStatements: true,
     },
     console.log('Connected to the mysql2 database.')
-)
+);
 
 // execute connection
 db.connect((error) => {
@@ -49,7 +46,7 @@ db.connect((error) => {
 });
 
 // query database
-// db.query('SELECT * FROM employee', function (error, results){
+// db.query("SELECT * FROM employee", function (error, results){
 //     if (error) {
 //     console.log(error)
 //     }
@@ -152,9 +149,9 @@ const viewAllDepartments = () => {
     console.log(chalk.yellow.bold(`====================================================================================`));
     promptUser();
 
-    db.query(sql, (err, rows) => {
-        if (err) {
-        res.status(500).json({ error: err.message });
+    db.query(sql, (error, rows) => {
+        if (error) {
+        res.status(500).json({ error: error.message });
         return;
         }
         res.json({
