@@ -1,6 +1,36 @@
 # EmployeeTracker
-this command-line application can be operated by a user to manage a company's employee database, using Node.js, Inquirer, and MySQL. this CMS [content management system], can be used to view and manage departments, roles, and employees in my company so that one can be organize and plan business.
+this command-line application can be operated by a user to manage a company's employee database, using Node.js, Inquirer, and MySQL. this CMS [content management system], can be used to view and manage departments, roles, and employees in my company for continuous organization / business planning.
 
+  ## Table of Contents
+
+  [Installation](#installation)
+
+  [Usage](#usage)
+
+  [Contribution](#contribution)
+
+  [Questions](#questions)
+
+  [Demo](#demo)
+  
+
+  
+  ## Installation
+
+  To install necessary dependencies, run the following command:
+  
+  - npm i 
+  
+  ## Usage
+
+  To use the application type the following into the terminal
+  
+  - node index.js
+  - follow question prompt
+
+  ## Contribution
+  
+  First fork the repo and create a branch that will merge into the main. Then make a commit to add to the project and open a pull request on Github. Once the changes have been approved and merged, the feature branch will be added to the main branch.
 
 GIVEN a command-line application that accepts user input
 WHEN I start the application
