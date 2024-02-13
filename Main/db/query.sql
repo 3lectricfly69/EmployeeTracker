@@ -1,21 +1,4 @@
--- What would you like to do ?
--- View All Employees
--- - id, first_name, last_name, title, dept, salary, manager
--- Add Employee
--- - what is the employee's first name ? what is the employee's last name ? what is the employee's role ?
--- - who is the employee's manager ? - __name_here__ - ___name__ added __ to the db. 
--- Update Employee role
--- View All Roles
--- - id, title, dept, salary
--- Add Role
--- View All Departments
--- - id, name
--- Add Department
--- - what is name of dept ? added _ to the db. what would you like to do ? 
--- - add __ what is the name of __ ? what is the salary of the role ? which dept does the role belong to ?
--- Quit
--- View All Employees
--- Add Employee
+
 
 SELECT *
 FROM employee;

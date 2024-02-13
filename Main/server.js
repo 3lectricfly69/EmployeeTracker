@@ -1,24 +1,120 @@
 const mysql = require ("mysql2");
-const PORT = process.env.PORT || 8000;
+// const PORT = process.env.PORT || 3306;
 const inquirer = require ('inquirer');
 const table = require ("table");
 const chalk = require ('chalk');
 const fs = require ("fs");
-const connection = require ('connection');
 const figlet = require ('figlet');
 const cTable = require ("console.table");
+const connection = require ('connection/lib/connection');
+const path = require('path');
+const { debuglog } = require("util");
+const sqlFilePath = path.join(__dirname, 'db', 'schema.sql');
+const sqlContent = fs.readFileSync(sqlFilePath, 'utf8');
+// var cb = callback;
+
+
+
+// connect(cb) {
+//     if (!cb) {
+//       return;
+//     }
+//     if (this._fatalError || this._protocolError) {
+//       return cb(this._fatalError || this._protocolError);
+//     }
+//     if (this._handshakePacket) {
+//       return cb(null, this);
+//     }
+//     let connectCalled = 0;
+//     function callbackOnce(isErrorHandler) {
+//       return function(param) {
+//         if (!connectCalled) {
+//           if (isErrorHandler) {
+//             cb(param);
+//           } else {
+//             cb(null, param);
+//           }
+//         }
+//         connectCalled = 1;
+//       };
+//     }
+//     this.once('error', callbackOnce(true));
+//     this.once('connect', callbackOnce(false));
+//   }
+  
+//   // ===================================
+//   // outgoing server connection methods
+//   // ===================================
+//   writeColumns(columns) {
+//     this.writePacket(Packets.ResultSetHeader.toPacket(columns.length));
+//     columns.forEach(column => {
+//       this.writePacket(
+//         Packets.ColumnDefinition.toPacket(column, this.serverConfig.encoding)
+//       );
+//     });
+//     this.writeEof();
+//   }
+
+//   // row is array of columns, not hash
+//   writeTextRow(column) {
+//     this.writePacket(
+//       Packets.TextRow.toPacket(column, this.serverConfig.encoding)
+//     );
+//   }
+
+//   writeBinaryRow(column) {
+//     this.writePacket(
+//       Packets.BinaryRow.toPacket(column, this.serverConfig.encoding)
+//     );
+//   }
+
+//   writeTextResult(rows, columns, binary=false) {
+//     this.writeColumns(columns);
+//     rows.forEach(row => {
+//       const arrayRow = new Array(columns.length);
+//       columns.forEach(column => {
+//         arrayRow.push(row[column.name]);
+//       });
+//       if(binary) {
+//         this.writeBinaryRow(arrayRow);
+//       }
+//       else this.writeTextRow(arrayRow);
+//     });
+//     this.writeEof();
+//   }
+
+//   writeEof(warnings, statusFlags) {
+//     this.writePacket(Packets.EOF.toPacket(warnings, statusFlags));
+//   }
+
+//   writeOk(args) {
+//     if (!args) {
+//       args = { affectedRows: 0 };
+//     }
+//     this.writePacket(Packets.OK.toPacket(args, this.serverConfig.encoding));
+//   }
+
+//   writeError(args) {
+//     // if we want to send error before initial hello was sent, use default encoding
+//     const encoding = this.serverConfig ? this.serverConfig.encoding : 'cesu8';
+//     this.writePacket(Packets.Error.toPacket(args, encoding));
+//   }
+
+//   serverHandshake(args) {
+//     this.serverConfig = args;
+//     this.serverConfig.encoding =
+//       CharsetToEncoding[this.serverConfig.characterSet];
+//     return this.addCommand(new Commands.ServerHandshake(args));
+//   }
+
 // Get the client // import and require mysql2
 // import mysql from 'mysql2/promise';
 
 // define models, turn on server, and work on routes
 // find * and create
 
-// connect middleware framework
-// var app = connect();
-// app.use(connect.urlencoded({ extended: false }));
-// app.use(connect.json()); 
-
 // connect to database
+
 const db = mysql.createConnection(
     {
         host: 'localhost',
@@ -27,13 +123,12 @@ const db = mysql.createConnection(
         // mysql pw
         password: 'rootroot',
         database: 'employees',
-        multipleStatements: true,
-    },
-    console.log('Connected to the mysql2 database.')
+        multipleStatements: true
+    }
 );
 
-// execute connection
-db.connect((error) => {
+// handle the results of schema.sql connection / execution
+db.connect(sqlContent, (error) => {
     if (error) throw error;
     console.log(chalk.yellow.bold(`================================================================================`));
     console.log(``);
@@ -42,114 +137,109 @@ db.connect((error) => {
     console.log(`                                                          ` + chalk.greenBright.bold('Created By: Marlie Ford'));
     console.log(``);
     console.log(chalk.yellow.bold(`================================================================================`));
+    console.log(`Schema applied successfully - - Connected to the ${db.config.database} database.`);
     promptUser();
+    db.end();
 });
-
-// query database
-// db.query("SELECT * FROM employee", function (error, results){
-//     if (error) {
-//     console.log(error)
-//     }
-//     console.log(results);
-// });
 
 const promptUser = () => {
-inquirer.prompt([
-    {
-        type: "list",
-        name: "choices",
-        message: "What would you like to do ?",
+    inquirer.prompt([
+        {
+        type: 'list',
+        name: 'choices',
+        message: 'What would you like to do ?',
         choices: [
-            "View All Employees",
-            "View All Employees By Department",
-            "Add Employee",
-            "Update Employee Manager",
-            "Update Employee Role",
-            "View All Roles",
-            "View Role Salaries",
-            "Add Role",
-            "View All Departments",
-            "Add Department",
-            "Exit",
-            "Remove Employee",
-            "Remove Role",
-            "Remove Department",
-            ]
-    }
-])    .then((answers) => {
-    const {choices} = answers;
-    console.log(answers);
-    if (choices === "View All Employees") {
-        viewAllEmployees();
-    }
+            'View All Employees',
+            'View All Employees By Department',
+            'Add Employee',
+            'Update Employee Supervisor',
+            'Update Employee Role',
+            'View All Roles',
+            'View Role Salaries',
+            'Add Role',
+            'View All Departments',
+            'Add Department',
+            'Exit',
+            'Remove Employee',
+            'Remove Role',
+            'Remove Department',
+        ]}])          
+            .then((answer) => {
+            const {choices} = answer;
+            console.log(answer);
+            if (choices === 'View All Employees') {
+                viewAllEmployees()
+                // './employees.employee'
+            };
 
-    if (choices === "View All Departments") {
-        viewAllDepartments();
-    }
+            if (choices === 'View All Departments') {
+                viewAllDepartments()
+                // './employees.department'
+            }
 
-    if (choices === "View All Employees By Department") {
-        viewEmployeesByDepartment();
-    }
+            if (choices === 'View All Employees By Department') {
+                viewEmployeesByDepartment()
+                // './employees/employee'
+            }
 
-    if (choices === "Add Employee") {
-        addEmployee();
-    }
+            if (choices === 'Add Employee') {
+                addEmployee()
+            }
 
-    if (choices === "Remove Employee") {
-        removeEmployee();
-    }
+            if (choices === 'Remove Employee') {
+                removeEmployee()
+            }
 
-    if (choices === "Update Employee Role") {
-        updateEmployeeRole();
-    }
+            if (choices === 'Update Employee Role') {
+                updateEmployeeRole()
+            }
 
-    if (choices === "Update Employee Manager") {
-        updateEmployeeManager();
-    }
+            if (choices === 'Update Employee Supervisor') {
+                updateEmployeeSupervisor()
+            }
 
-    if (choices === "View All Roles") {
-        viewAllRoles();
-    }
+            if (choices === 'View All Roles') {
+                viewAllRoles()
+            }
 
-    if (choices === "Add Role") {
-        addRole();
-    }
+            if (choices === 'Add Role') {
+                addRole()
+            }
 
-    if (choices === "Remove Role") {
-        removeRole();
-    }
+            if (choices === 'Remove Role') {
+                removeRole()
+            }
 
-    if (choices === "Add Department") {
-        addDepartment();
-    }
+            if (choices === 'Add Department') {
+                addDepartment()
+            }
 
-    if (choices === "View Role Salaries") {
-        viewRoleSalary();
-    }
+            if (choices === 'View Role Salaries') {
+                viewRoleSalary()
+            }
 
-    if (choices === "Remove Department") {
-        removeDepartment();
-    }
+            if (choices === 'Remove Department') {
+                removeDepartment()
+            }
 
-    if (choices === "Exit") {
-        db.end();
-    }
-});
-};
+            if (choices === 'Exit') {
+                db.end()
+            }
+})};
 
 // ----------------------------------------------------- VIEW -----------------------------------------------------------------------
     // View all Departments
 const viewAllDepartments = () => {
     db.query('SELECT * FROM department', function (error, results) {
-    if (error) throw error;
-    console.log(chalk.yellow.bold(`====================================================================================`));
-    console.log(`                              ` + chalk.green.bold(`All Departments:`));
-    console.log(chalk.yellow.bold(`====================================================================================`));
-    console.table(results);
-    console.log(chalk.yellow.bold(`====================================================================================`));
-    promptUser();
+        if (error) throw error;
+        console.log(chalk.yellow.bold(`====================================================================================`));
+        console.log(`                              ` + chalk.green.bold(`All Departments:`));
+        console.log(chalk.yellow.bold(`====================================================================================`));
+        console.table(results);
+        console.log(chalk.yellow.bold(`====================================================================================`));
+        promptUser();
 
-    db.query(sql, (error, rows) => {
+    db.query(mysql, (error, rows) => {
         if (error) {
         res.status(500).json({ error: error.message });
         return;
@@ -174,38 +264,19 @@ const viewRoleSalary = () => {
         console.table(results);
         console.log(chalk.yellow.bold(`====================================================================================`));
         promptUser();
-    });
-};
-
-// `SELECT employee.id, 
-//             employee.first_name, 
-//             employee.last_name, 
-//             role.title, 
-//             department.department_name AS 'department', 
-//             role.salary
-//             FROM employee, role, department 
-//             WHERE department.id = role.department_id 
-//             AND role.id = employee.role_id
-//             ORDER BY employee.id ASC`
-
-// `CREATE VIEW v_emp AS
-//             SELECT
-//             e1.*,
-//             roles.title AS role,
-//             department.name AS department,
-//             roles.salary AS salary,
-//             CONCAT(e2.first_name, '', e2.last_name) AS manager
-//             FROM
-//             employee e1
-//             LEFT JOIN 
-//             roles ON e1.role.id = role.id
-//             LEFT JOIN 
-//             department ON roles.department.id = department.id
-//             LEFT JOIN 
-//             employee e2 ON e2.id = e1.manager_id;`
-// SELECT employee.id, employee.first_name, employee.last_name, employee.role_id, employee.manager_id, FROM employee`
-// `SELECT employee.id AS id, employee.first_name, employee.last_name, role.title AS title, department.department_name AS department, role.salary AS salary, CONCAT(manager.first_name, " ", manager.last_name) AS manager FROM employee JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee AS manager ON employee.manager_id = manager.id`
-
+        db.query(mysql, (error, rows) => {
+            if (error) {
+            res.status(500).json({ error: error.message });
+            return;
+            }
+            res.json({
+            message: 'success',
+            data: rows
+        });
+        });
+})};
+    
+'SELECT employee.id AS id, employee.first_name, employee.last_name, role.title AS title, department.dep_name AS department, role.salary AS salary, CONCAT(manager.first_name, " ", manager.last_name) AS manager FROM employee JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee AS manager ON employee.manager_id = manager.id'
 // View All Employees
 const viewAllEmployees = () => {
     db.query('SELECT * FROM employee',
@@ -217,12 +288,11 @@ const viewAllEmployees = () => {
         console.table(results);
         console.log(chalk.yellow.bold(`====================================================================================`));
         promptUser();
-    });
-};  
+})};  
 
 // View all Employees by Department
 const viewEmployeesByDepartment = () => {
-    db.query('SELECT * FROM employee',
+    db.query('SELECT * FROM employees.employee',
     function (error, results) {
         if (error) throw error;
         console.log(chalk.yellow.bold(`====================================================================================`));
@@ -231,13 +301,8 @@ const viewEmployeesByDepartment = () => {
         console.table(results);
         console.log(chalk.yellow.bold(`====================================================================================`));
         promptUser();
-    });
-};
+})};
 
-  // View all Roles
-// const sql = `SELECT role.id, role.title, department.department_name AS department
-//             FROM role
-//             INNER JOIN department ON role.department_id = department.id`;
 const viewAllRoles = () => {
     db.query('SELECT * FROM role', function (error, results) {
         if (error) throw error;
@@ -248,4 +313,373 @@ const viewAllRoles = () => {
         // response.forEach((role) => {console.log(role.title);});
         console.log(chalk.yellow.bold(`====================================================================================`));
         promptUser();
-    })};
+})};
+
+  // add a New Role
+const addRole = () => {
+    const mysql = 'SELECT * FROM department'
+    connection.promise().query(mysql, (error, response) => {
+        if (error) throw error;
+        let deptNamesArray = [];
+        response.forEach((department) => {deptNamesArray.push(department.department_name);});
+        deptNamesArray.push('Create Department');
+        inquirer
+        .prompt([
+            {
+            name: 'departmentName',
+            type: 'list',
+            message: 'Which department is this new role in?',
+            choices: deptNamesArray
+            }
+        ])
+        .then((answer) => {
+            if (answer.departmentName === 'Create Department') {
+            this.addDepartment();
+            } else {
+            addRoleResume(answer);
+            }
+        });
+
+
+        const addRoleResume = (departmentData) => {
+        inquirer
+            .prompt([
+            {
+                name: 'newRole',
+                type: 'input',
+                message: 'What is the name of your new role?',
+                validate: validate.validateString
+            },
+            {
+                name: 'salary',
+                type: 'input',
+                message: 'What is the salary of this new role?',
+                validate: validate.validateSalary
+            }
+            ])
+            .then((answer) => {
+            let createdRole = answer.newRole;
+            let departmentId;
+
+
+            response.forEach((department) => {
+                if (departmentData.departmentName === department.department_name) {departmentId = department.id;}
+            });
+
+
+            let mysql =   `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`;
+            let crit = [createdRole, answer.salary, departmentId];
+
+
+            connection.promise().query(mysql, crit, (error) => {
+                if (error) throw error;
+                console.log(chalk.yellow.bold(`====================================================================================`));
+                console.log(chalk.greenBright(`Role successfully created!`));
+                console.log(chalk.yellow.bold(`====================================================================================`));
+                viewAllRoles();
+            });
+            });
+        };
+    });
+};
+
+  // add a New Department
+const addDepartment = () => {
+    inquirer
+        .prompt([
+        {
+            name: 'newDepartment',
+            type: 'input',
+            message: 'What is the name of your new Department?',
+            validate: validate.validateString
+        }
+        ])
+        .then((answer) => {
+        let mysql =     `INSERT INTO department (department_name) VALUES (?)`;
+        connection.query(mysql, answer.newDepartment, (error, response) => {
+            if (error) throw error;
+            console.log(``);
+            console.log(chalk.greenBright(answer.newDepartment + ` Department successfully created!`));
+            console.log(``);
+            viewAllDepartments();
+        });
+        });
+};
+
+
+  // ------------------------------------------------- UPDATE -------------------------------------------------------------------------
+
+
+  // Update an Employee's Role
+const updateEmployeeRole = () => {
+    let mysql =       `SELECT employee.id, employee.first_name, employee.last_name, role.id AS "role_id"
+                    FROM employee, role, department WHERE department.id = role.department_id AND role.id = employee.role_id`;
+    connection.promise().query(mysql, (error, response) => {
+        if (error) throw error;
+        let employeeNamesArray = [];
+        response.forEach((employee) => {employeeNamesArray.push(`${employee.first_name} ${employee.last_name}`);});
+
+
+        let mysql =     `SELECT role.id, role.title FROM role`;
+        connection.promise().query(mysql, (error, response) => {
+        if (error) throw error;
+        let rolesArray = [];
+        response.forEach((role) => {rolesArray.push(role.title);});
+
+
+        inquirer
+            .prompt([
+            {
+                name: 'chosenEmployee',
+                type: 'list',
+                message: 'Which employee has a new role?',
+                choices: employeeNamesArray
+            },
+            {
+                name: 'chosenRole',
+                type: 'list',
+                message: 'What is their new role?',
+                choices: rolesArray
+            }
+            ])
+            .then((answer) => {
+            let newTitleId, employeeId;
+
+
+            response.forEach((role) => {
+                if (answer.chosenRole === role.title) {
+                newTitleId = role.id;
+                }
+            });
+
+
+            response.forEach((employee) => {
+                if (
+                answer.chosenEmployee ===
+                `${employee.first_name} ${employee.last_name}`
+                ) {
+                employeeId = employee.id;
+                }
+            });
+
+
+            let mysql =    `UPDATE employee SET employee.role_id = ? WHERE employee.id = ?`;
+            connection.query(
+                mysql,
+                [newTitleId, employeeId],
+                (error) => {
+                if (error) throw error;
+                console.log(chalk.greenBright.bold(`====================================================================================`));
+                console.log(chalk.greenBright(`Employee Role Updated`));
+                console.log(chalk.greenBright.bold(`====================================================================================`));
+                promptUser();
+                }
+            );
+            });
+        });
+    });
+};
+
+
+  // Update an Employee's Supervisor
+const updateEmployeeSupervisor = () => {
+    let mysql =       `SELECT employee.id, employee.first_name, employee.last_name, employee.supervisor_id
+                    FROM employee`;
+                        connection.promise().query(mysql, (error, response) => {
+        let employeeNamesArray = [];
+        response.forEach((employee) => {employeeNamesArray.push(`${employee.first_name} ${employee.last_name}`);});
+
+
+        inquirer
+        .prompt([
+            {
+            name: 'chosenEmployee',
+            type: 'list',
+            message: 'Which employee has a new supervisor?',
+            choices: employeeNamesArray
+            },
+            {
+            name: 'newSupervisor',
+            type: 'list',
+            message: 'Who is their supervisor?',
+            choices: employeeNamesArray
+            }
+        ])
+        .then((answer) => {
+            let employeeId, supervisorId;
+            response.forEach((employee) => {
+            if (
+                answer.chosenEmployee === `${employee.first_name} ${employee.last_name}`
+            ) {
+                employeeId = employee.id;
+            }
+
+
+            if (
+                answer.newSupervisor === `${employee.first_name} ${employee.last_name}`
+            ) {
+                supervisorId = employee.id;
+            }
+            });
+
+
+            if (validate.isSame(answer.chosenEmployee, answer.newSupervisor)) {
+            console.log(chalk.redBright.bold(`====================================================================================`));
+            console.log(chalk.redBright(`Invalid Supervisor Selection`));
+            console.log(chalk.redBright.bold(`====================================================================================`));
+            promptUser();
+            } else {
+            let mysql = `UPDATE employee SET employee.supervisor_id = ? WHERE employee.id = ?`;
+
+
+            connection.query(
+                mysql,
+                [supervisorId, employeeId],
+                (error) => {
+                if (error) throw error;
+                console.log(chalk.greenBright.bold(`====================================================================================`));
+                console.log(chalk.greenBright(`Employee Supervisor Updated`));
+                console.log(chalk.greenBright.bold(`====================================================================================`));
+                promptUser();
+                }
+            );
+            }
+        });
+    });
+};
+
+
+  // -------------------------------------- DELETE --------------------------------------------------------
+
+
+  // delete Employee
+const removeEmployee = () => {
+    let mysql =     `SELECT employee.id, employee.first_name, employee.last_name FROM employee`;
+
+
+    connection.promise().query(mysql, (error, response) => {
+        if (error) throw error;
+        let employeeNamesArray = [];
+        response.forEach((employee) => {employeeNamesArray.push(`${employee.first_name} ${employee.last_name}`);});
+
+
+        inquirer
+        .prompt([
+            {
+            name: 'chosenEmployee',
+            type: 'list',
+            message: 'Which employee would you like to remove?',
+            choices: employeeNamesArray
+            }
+        ])
+        .then((answer) => {
+            let employeeId;
+
+
+            response.forEach((employee) => {
+            if (
+                answer.chosenEmployee ===
+                `${employee.first_name} ${employee.last_name}`
+            ) {
+                employeeId = employee.id;
+            }
+            });
+
+
+            let mysql = `DELETE FROM employee WHERE employee.id = ?`;
+            connection.query(mysql, [employeeId], (error) => {
+            if (error) throw error;
+            console.log(chalk.redBright.bold(`====================================================================================`));
+            console.log(chalk.redBright(`Employee Successfully Removed`));
+            console.log(chalk.RedBright.bold(`====================================================================================`));
+            viewAllEmployees();
+            });
+        });
+    });
+};
+
+
+  // Delete a Role
+const removeRole = () => {
+    let mysql = `SELECT role.id, role.title FROM role`;
+
+
+    connection.promise().query(mysql, (error, response) => {
+        if (error) throw error;
+        let roleNamesArray = [];
+        response.forEach((role) => {roleNamesArray.push(role.title);});
+
+
+        inquirer
+        .prompt([
+            {
+            name: 'chosenRole',
+            type: 'list',
+            message: 'Which role would you like to remove?',
+            choices: roleNamesArray
+            }
+        ])
+        .then((answer) => {
+            let roleId;
+
+
+            response.forEach((role) => {
+            if (answer.chosenRole === role.title) {
+                roleId = role.id;
+            }
+            });
+
+
+            let mysql =   `DELETE FROM role WHERE role.id = ?`;
+            connection.promise().query(mysql, [roleId], (error) => {
+            if (error) throw error;
+            console.log(chalk.redBright.bold(`====================================================================================`));
+            console.log(chalk.greenBright(`Role Successfully Removed`));
+            console.log(chalk.redBright.bold(`====================================================================================`));
+            viewAllRoles();
+            });
+        });
+    });
+};
+
+
+  // Delete a Department
+const removeDepartment = () => {
+    let mysql =   `SELECT department.id, department.department_name FROM department`;
+    new connection().query(mysql, (error, response) => {
+        if (error) throw error;
+        let departmentNamesArray = [];
+        response.forEach((department) => {departmentNamesArray.push(department.department_name);});
+
+
+        inquirer
+        .prompt([
+            {
+            name: 'chosenDept',
+            type: 'list',
+            message: 'Which department would you like to remove?',
+            choices: departmentNamesArray
+            }
+        ])
+        .then((answer) => {
+            let departmentId;
+
+
+            response.forEach((department) => {
+            if (answer.chosenDept === department.department_name) {
+                departmentId = department.id;
+            }
+            });
+
+
+            let mysql =     `DELETE FROM department WHERE department.id = ?`;
+            connection.promise().query(mysql, [departmentId], (error) => {
+            if (error) throw error;
+            console.log(chalk.redBright.bold(`====================================================================================`));
+        console.log(chalk.redBright(`Department Successfully Removed`));
+            console.log(chalk.redBright.bold(`====================================================================================`));
+            viewAllDepartments();
+            });
+        });
+    });
+};
