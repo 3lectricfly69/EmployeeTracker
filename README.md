@@ -50,21 +50,4 @@ THEN I am prompted to enter the employee’s first name, last name, role, and ma
 WHEN I choose to update an employee role
 THEN I am prompted to select an employee to update and their new role and this information is updated in the database
 
-<!-- -- What would you like to do ?
--- View All Employees
--- - id, first_name, last_name, title, dept, salary, manager
--- Add Employee
--- - what is the employee's first name ? what is the employee's last name ? what is the employee's role ?
--- - who is the employee's manager ? - __name_here__ - ___name__ added __ to the db. 
--- Update Employee role
--- View All Roles
--- - id, title, dept, salary
--- Add Role
--- View All Departments
--- - id, name
--- Add Department
--- - what is name of dept ? added _ to the db. what would you like to do ? 
--- - add __ what is the name of __ ? what is the salary of the role ? which dept does the role belong to ?
--- Quit
--- View All Employees
--- Add Employee -->
+https://github.com/3lectricfly69/EmployeeTracker/assets/98570029/336e6686-ebca-4db6-a5c4-9990fe01d0f7
