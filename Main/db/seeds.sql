@@ -6,7 +6,7 @@ VALUES
 ('Human Resources'),
 ('Administration');
 
-INSERT INTO role (title, salary, department_id)
+INSERT INTO roletable (title, salary, department_id)
 VALUES
 ('Engineer', 85000.00, 1),
 ('Lead Engineer', 93000.00, 1),
@@ -17,7 +17,7 @@ VALUES
 ('HR Administrator', 60000.00, 4),
 ('CEO', 110000, 5);
 
-INSERT INTO employee (first_name, last_name, role_id, supervisor_id)
+INSERT INTO employee (first_name, last_name, roletable_id, supervisor_id)
 VALUES ('Duncan','Trussell', 8, 1),
         ('Laney','Orton', 1, 10),
         ('Amber','Horwits', 3, 4),
